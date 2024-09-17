@@ -9,10 +9,6 @@ jobs:
     test-and-build-api:
         name: Test and Build API
         runs-on: ubuntu-latest
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -29,11 +25,6 @@ jobs:
                 key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
                 restore-keys: |
                   ${{ runner.os }}-go-
-            - name: Print env vars
-              run: |
-                echo "SUPABASE_URL=${SUPABASE_URL}"
-                echo "SUPABASE_KEY=${SUPABASE_KEY}"
-                echo "OPENAI_API_KEY=${OPENAI_API_KEY}"
             
             - name: Install dependencies
               run: go mod download
@@ -44,6 +35,10 @@ jobs:
                 args: --out-format colored-line-number
 
             - name: Build Binary
+              env:
+                SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+                SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+                OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
               run: GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
 
             - name: Zip Binary
