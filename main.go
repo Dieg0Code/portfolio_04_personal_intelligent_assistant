@@ -26,7 +26,7 @@ func init() {
 	service := service.NewDiaryServiceImpl(openai, repo)
 	controller := controller.NewDiaryControllerImpl(service)
 
-	r := router.NewRouter(controller)
+	r = router.NewRouter(controller)
 	r.InitRoutes()
 
 	logrus.Info("Successfully initialized all components")

@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  TestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main
+      FunctionName: my-go-lambda
+      Runtime: provided.al2023
+      CodeUri: .
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 150
+      Environment:
+        Variables:
+          SUPABASE_URL: abc
+          SUPABASE_KEY: abc
+          OPENAI_API_KEY: abc
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  TestFunction:
+    Description: "ARN de la función Lambda desplegada"
+    Value: !GetAtt ServerlessApiScraper.Arn
