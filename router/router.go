@@ -35,7 +35,7 @@ func (r *Router) InitRoutes() *Router {
 	{
 		diaryRoute := baseRoute.Group("/diary")
 		{
-			diaryRoute.POST("/create", r.diaryController.CreateDiary)
+			diaryRoute.POST("", r.diaryController.CreateDiary)
 			// diaryRoute.GET("/:id", r.diaryController.GetDiary)
 			// diaryRoute.GET("", r.diaryController.GetAllDiaries)
 			// diaryRoute.DELETE("/:id", r.diaryController.DeleteDiary)
