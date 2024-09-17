@@ -35,10 +35,6 @@ jobs:
                 args: --out-format colored-line-number
 
             - name: Build Binary
-              env:
-                SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-                SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-                OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
               run: GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
 
             - name: Zip Binary
@@ -87,4 +83,12 @@ jobs:
 
           - name: Apply Terraform
             working-directory: ./terraform
-            run: terraform apply -auto-approve tfplan
+            env:
+                SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+                SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+                OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+            run: |
+                terraform apply -auto-approve tfplan \
+                    -var "supabase_url=${SUPABASE_URL}" \
+                    -var "supabase_key=${SUPABASE_KEY}" \
+                    -var "openai_api_key=${OPENAI_API_KEY}"
