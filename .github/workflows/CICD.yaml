@@ -72,6 +72,7 @@ jobs:
             with:
               role-to-assume: arn:aws:iam::992382698192:role/RagDiaryTerraform
               aws-region: sa-east-1
+              audience: sts.amazonaws.com
 
           - name: Set up Terraform
             uses: hashicorp/setup-terraform@v1
