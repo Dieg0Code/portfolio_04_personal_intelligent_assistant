@@ -2,12 +2,18 @@ package db
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/sirupsen/logrus"
 	"github.com/supabase-community/supabase-go"
 )
 
-func NewDBConnection(supabaseURL, supabaseKey string) (*supabase.Client, error) {
+var (
+	supabaseURL = os.Getenv("SUPABASE_URL")
+	supabaseKey = os.Getenv("SUPABASE_KEY")
+)
+
+func NewDBConnection() (*supabase.Client, error) {
 	dbClient, err := supabase.NewClient(supabaseURL, supabaseKey, nil)
 	if err != nil {
 		logrus.WithError(err).Error("cannot initialize client")

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"net/http"
-	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -21,22 +20,13 @@ var r *router.Router
 func init() {
 	logrus.Info("initializing router")
 
-	// Leer variables de entorno
-	supabaseURL := os.Getenv("SUPABASE_URL")
-	supabaseKey := os.Getenv("SUPABASE_KEY")
-	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
-
-	if supabaseURL == "" || supabaseKey == "" || openaiAPIKey == "" {
-		logrus.Fatal("Missing required environment variables")
-	}
-
 	// Inicializar conexión a la base de datos
-	dbClient, err := db.NewDBConnection(supabaseURL, supabaseKey)
+	dbClient, err := db.NewDBConnection()
 	if err != nil {
 		logrus.Fatalf("Failed to initialize database connection: %v", err)
 	}
 	repo := data.NewDiaryRepositoryImpl(dbClient)
-	openai := provider.NewOperAiClient(openaiAPIKey)
+	openai := provider.NewOperAiClient()
 	service := service.NewDiaryServiceImpl(openai, repo)
 	controller := controller.NewDiaryControllerImpl(service)
 

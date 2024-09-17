@@ -9,6 +9,10 @@ jobs:
     test-and-build-api:
         name: Test and Build API
         runs-on: ubuntu-latest
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -83,12 +87,4 @@ jobs:
 
           - name: Apply Terraform
             working-directory: ./terraform
-            env:
-                SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-                SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-                OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-            run: |
-                terraform apply -auto-approve tfplan \
-                    -var "supabase_url=${SUPABASE_URL}" \
-                    -var "supabase_key=${SUPABASE_KEY}" \
-                    -var "openai_api_key=${OPENAI_API_KEY}"
+            run: terraform apply -auto-approve tfplan
