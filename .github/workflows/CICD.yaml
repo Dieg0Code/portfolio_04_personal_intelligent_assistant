@@ -29,6 +29,11 @@ jobs:
                 key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
                 restore-keys: |
                   ${{ runner.os }}-go-
+            - name: Print env vars
+              run: |
+                echo "SUPABASE_URL=${SUPABASE_URL}"
+                echo "SUPABASE_KEY=${SUPABASE_KEY}"
+                echo "OPENAI_API_KEY=${OPENAI_API_KEY}"
             
             - name: Install dependencies
               run: go mod download

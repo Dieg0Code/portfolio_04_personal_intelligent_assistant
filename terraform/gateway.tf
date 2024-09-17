@@ -137,6 +137,25 @@ resource "aws_api_gateway_stage" "api_gateway_stage" {
   depends_on = [ 
     aws_api_gateway_deployment.api_gateway_deployment
    ]
+
+   access_log_settings {
+     destination_arn = aws_cloudwatch_log_group.api_gateway_log_group.arn
+     format = jsonencode({
+       requestId = "$context.requestId",
+       ip = "$context.identity.sourceIp",
+       requestTime = "$context.requestTime",
+       httpMethod = "$context.httpMethod",
+       resourcePath = "$context.resourcePath",
+       status = "$context.status",
+       protocol = "$context.protocol",
+       responseLength = "$context.responseLength"
+     })
+   }
+}
+
+resource "aws_cloudwatch_log_group" "api_gateway_logs" {
+  name              = "/aws/apigateway/rag_diary_gateway"
+  retention_in_days = 7
 }
 
 # Ivocation URL
