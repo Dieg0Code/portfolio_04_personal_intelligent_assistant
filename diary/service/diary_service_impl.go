@@ -9,6 +9,7 @@ import (
 	"github.com/dieg0code/rag-diary/diary/data"
 	"github.com/dieg0code/rag-diary/diary/dto"
 	"github.com/dieg0code/rag-diary/diary/model"
+	"github.com/google/uuid"
 	openai "github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 )
@@ -112,6 +113,7 @@ func (d *DiaryServiceImpl) CreateDiary(diary dto.CreateDiaryDTO) error {
 	embeddings := response.Data[0].Embedding
 
 	diaryModel := &model.Diary{
+		ID:        uuid.New(),
 		Title:     diary.Title,
 		Content:   diary.Content,
 		CreatedAt: time.Now().UTC(),
