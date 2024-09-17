@@ -1,3 +1,4 @@
 .env
 .aws-sam
-./terraform/.terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
