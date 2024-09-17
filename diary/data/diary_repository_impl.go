@@ -1,7 +1,6 @@
 package data
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/dieg0code/rag-diary/diary/model"
@@ -95,26 +94,19 @@ func (d *DiaryRepositoryImpl) SemanticSearch(queryEmbedding []float32, similarit
 // }
 
 // InsertDiary implements DiaryRepository.
-func (d *DiaryRepositoryImpl) InsertDiary(diary *model.Diary) (*model.Diary, error) {
-	data, count, err := d.supabase.From("diary").Insert(diary, false, "", "representation", "exact").Execute()
+func (d *DiaryRepositoryImpl) InsertDiary(diary *model.Diary) error {
+	_, count, err := d.supabase.From("diary").Insert(diary, false, "", "representation", "exact").Execute()
 	if err != nil {
 		logrus.WithError(err).Error("cannot insert diary")
-		return nil, err
+		return err
 	}
 
 	if count == 0 {
 		logrus.Warn("diary not inserted")
-		return nil, errors.New("diary not inserted")
+		return errors.New("diary not inserted")
 	}
 
-	var diaries []*model.Diary
-	err = json.Unmarshal(data, &diaries)
-	if err != nil {
-		logrus.WithError(err).Error("cannot unmarshal diary")
-		return nil, err
-	}
-
-	return diaries[0], nil
+	return nil
 }
 
 func NewDiaryRepositoryImpl(supabase *supabase.Client) DiaryRepository {

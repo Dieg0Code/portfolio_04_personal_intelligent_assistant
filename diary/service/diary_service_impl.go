@@ -120,7 +120,7 @@ func (d *DiaryServiceImpl) CreateDiary(diary dto.CreateDiaryDTO) error {
 		Embedding: embeddings,
 	}
 
-	_, err = d.diaryRepo.InsertDiary(diaryModel)
+	err = d.diaryRepo.InsertDiary(diaryModel)
 	if err != nil {
 		logrus.WithError(err).Error("cannot insert diary entry")
 		return err
