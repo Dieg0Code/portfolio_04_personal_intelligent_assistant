@@ -9,6 +9,10 @@ jobs:
     test-and-build-api:
         name: Test and Build API
         runs-on: ubuntu-latest
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
