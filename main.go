@@ -1,23 +1,24 @@
 package main
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/dieg0code/rag-diary/db"
 	"github.com/dieg0code/rag-diary/diary/controller"
 	"github.com/dieg0code/rag-diary/diary/data"
 	"github.com/dieg0code/rag-diary/diary/provider"
 	"github.com/dieg0code/rag-diary/diary/service"
 	"github.com/dieg0code/rag-diary/router"
-	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 )
 
-func main() {
-	err := godotenv.Load()
-	if err != nil {
-		logrus.WithError(err).Error("cannot load env file")
-	}
+var r *router.Router
+
+func init() {
+	logrus.Info("initializing router")
 
 	db := db.NewDBConnection()
 	repo := data.NewDiaryRepositoryImpl(db)
@@ -26,18 +27,28 @@ func main() {
 	controller := controller.NewDiaryControllerImpl(service)
 
 	r := router.NewRouter(controller)
+	r.InitRoutes()
 
-	ginRouter := r.InitRoutes()
+	logrus.Info("Successfully initialized all components")
+}
 
-	serer := &http.Server{
-		Addr:    ":8080",
-		Handler: ginRouter,
-	}
-
-	err = serer.ListenAndServe()
+func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	logrus.Info("handling request", req.RequestContext.RequestID)
+	response, err := r.Handler(ctx, req)
 	if err != nil {
-		logrus.WithError(err).Error("cannot start server")
+		logrus.Error("error handling request", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       `{ "message": "Internal Server Error" }`,
+		}, err
 	}
 
-	logrus.Info("server started")
+	logrus.Info("Request handled successfully")
+	return response, nil
+}
+
+func main() {
+
+	logrus.Info("Starting server")
+	lambda.Start(Handler)
 }
