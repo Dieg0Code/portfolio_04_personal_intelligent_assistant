@@ -114,7 +114,6 @@ func (d *DiaryServiceImpl) CreateDiary(diary dto.CreateDiaryDTO) error {
 	diaryModel := &model.Diary{
 		Title:     diary.Title,
 		Content:   diary.Content,
-		CreatedAt: time.Now().Format("02-01-2006"),
 		Embedding: embeddings,
 	}
 
