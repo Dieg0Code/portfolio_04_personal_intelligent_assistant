@@ -67,7 +67,7 @@ jobs:
               name: rag_diary
               path: ./terraform
         
-          - name: Configure AWS credentials using OIDC
+          - name: Configure AWS credentials using OIDC # required for assuming roles
             uses: aws-actions/configure-aws-credentials@v2
             with:
               role-to-assume: arn:aws:iam::992382698192:role/RagDiaryTerraform
