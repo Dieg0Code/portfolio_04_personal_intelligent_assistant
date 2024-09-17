@@ -128,41 +128,41 @@ func (d *DiaryServiceImpl) CreateDiary(diary dto.CreateDiaryDTO) error {
 }
 
 // DeleteDiary implements DiaryService.
-func (d *DiaryServiceImpl) DeleteDiary(id int) error {
-	err := d.diaryRepo.DeleteDiary(id)
-	if err != nil {
-		logrus.WithError(err).Error("cannot delete diary")
-		return err
-	}
-	return nil
-}
+// func (d *DiaryServiceImpl) DeleteDiary(id int) error {
+// 	err := d.diaryRepo.DeleteDiary(id)
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot delete diary")
+// 		return err
+// 	}
+// 	return nil
+// }
 
 // GetAllDiaries implements DiaryService.
-func (d *DiaryServiceImpl) GetAllDiaries() ([]*dto.DiaryDTO, error) {
-	diaries, err := d.diaryRepo.GetAllDiaries()
-	if err != nil {
-		logrus.WithError(err).Error("cannot get all diaries")
-		return nil, err
-	}
+// func (d *DiaryServiceImpl) GetAllDiaries() ([]*dto.DiaryDTO, error) {
+// 	diaries, err := d.diaryRepo.GetAllDiaries()
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot get all diaries")
+// 		return nil, err
+// 	}
 
-	var diariesDTO []*dto.DiaryDTO
-	for _, diary := range diaries {
-		diariesDTO = append(diariesDTO, &dto.DiaryDTO{
-			ID:        diary.ID,
-			Title:     diary.Title,
-			Content:   diary.Content,
-			CreatedAt: diary.CreatedAt,
-		})
+// 	var diariesDTO []*dto.DiaryDTO
+// 	for _, diary := range diaries {
+// 		diariesDTO = append(diariesDTO, &dto.DiaryDTO{
+// 			ID:        diary.ID,
+// 			Title:     diary.Title,
+// 			Content:   diary.Content,
+// 			CreatedAt: diary.CreatedAt,
+// 		})
 
-	}
+// 	}
 
-	return diariesDTO, nil
-}
+// 	return diariesDTO, nil
+// }
 
 // GetDiary implements DiaryService.
-func (d *DiaryServiceImpl) GetDiary(id int) (*dto.DiaryDTO, error) {
-	panic("unimplemented")
-}
+// func (d *DiaryServiceImpl) GetDiary(id int) (*dto.DiaryDTO, error) {
+// 	panic("unimplemented")
+// }
 
 func NewDiaryServiceImpl(openAi *openai.Client, diaryRepo data.DiaryRepository) DiaryService {
 	return &DiaryServiceImpl{

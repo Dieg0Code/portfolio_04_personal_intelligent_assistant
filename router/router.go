@@ -21,7 +21,7 @@ func NewRouter(diaryController controller.DiaryController) *Router {
 }
 
 func (r *Router) InitRoutes() *Router {
-	// gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
 
@@ -35,10 +35,10 @@ func (r *Router) InitRoutes() *Router {
 	{
 		diaryRoute := baseRoute.Group("/diary")
 		{
-			diaryRoute.POST("", r.diaryController.CreateDiary)
-			diaryRoute.GET("/:id", r.diaryController.GetDiary)
-			diaryRoute.GET("", r.diaryController.GetAllDiaries)
-			diaryRoute.DELETE("/:id", r.diaryController.DeleteDiary)
+			diaryRoute.POST("/create", r.diaryController.CreateDiary)
+			// diaryRoute.GET("/:id", r.diaryController.GetDiary)
+			// diaryRoute.GET("", r.diaryController.GetAllDiaries)
+			// diaryRoute.DELETE("/:id", r.diaryController.DeleteDiary)
 			diaryRoute.POST("/semantic-search", r.diaryController.SemanticSearch)
 			diaryRoute.POST("/rag-response", r.diaryController.RAGResponse)
 		}

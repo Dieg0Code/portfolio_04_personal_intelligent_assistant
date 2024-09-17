@@ -4,7 +4,7 @@ create or replace function search_diary(
     match_count int
 )
 returns table (
-    id bigint,
+    id uuid,
     title text,
     content text,
     created_at timestamp,

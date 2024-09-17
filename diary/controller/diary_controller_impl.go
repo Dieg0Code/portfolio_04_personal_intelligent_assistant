@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"strconv"
 
 	baseresponse "github.com/dieg0code/rag-diary/base_response"
 	"github.com/dieg0code/rag-diary/diary/dto"
@@ -58,116 +57,116 @@ func (d *DiaryControllerImpl) CreateDiary(c *gin.Context) {
 }
 
 // DeleteDiary implements DiaryController.
-func (d *DiaryControllerImpl) DeleteDiary(c *gin.Context) {
-	diaryID := c.Param("id")
+// func (d *DiaryControllerImpl) DeleteDiary(c *gin.Context) {
+// 	diaryID := c.Param("id")
 
-	id, err := strconv.Atoi(diaryID)
-	if err != nil {
-		logrus.WithError(err).Error("cannot convert id to int")
-		res := baseresponse.BaseResponse[string]{
-			Code:   400,
-			Status: "Bad Request",
-			Msg:    fmt.Sprintf("cannot convert id to int: %v", err.Error()),
-			Data:   "",
-		}
+// 	id, err := strconv.Atoi(diaryID)
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot convert id to int")
+// 		res := baseresponse.BaseResponse[string]{
+// 			Code:   400,
+// 			Status: "Bad Request",
+// 			Msg:    fmt.Sprintf("cannot convert id to int: %v", err.Error()),
+// 			Data:   "",
+// 		}
 
-		c.JSON(400, res)
-		return
-	}
+// 		c.JSON(400, res)
+// 		return
+// 	}
 
-	err = d.DiaryService.DeleteDiary(id)
-	if err != nil {
-		logrus.WithError(err).Error("cannot delete diary")
-		res := baseresponse.BaseResponse[string]{
-			Code:   500,
-			Status: "Internal Server Error",
-			Msg:    fmt.Sprintf("cannot delete diary: %v", err.Error()),
-			Data:   "",
-		}
+// 	err = d.DiaryService.DeleteDiary(id)
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot delete diary")
+// 		res := baseresponse.BaseResponse[string]{
+// 			Code:   500,
+// 			Status: "Internal Server Error",
+// 			Msg:    fmt.Sprintf("cannot delete diary: %v", err.Error()),
+// 			Data:   "",
+// 		}
 
-		c.JSON(500, res)
-		return
-	}
+// 		c.JSON(500, res)
+// 		return
+// 	}
 
-	res := baseresponse.BaseResponse[string]{
-		Code:   200,
-		Status: "OK",
-		Msg:    "diary deleted successfully",
-		Data:   "",
-	}
+// 	res := baseresponse.BaseResponse[string]{
+// 		Code:   200,
+// 		Status: "OK",
+// 		Msg:    "diary deleted successfully",
+// 		Data:   "",
+// 	}
 
-	c.JSON(200, res)
-}
+// 	c.JSON(200, res)
+// }
 
 // GetAllDiaries implements DiaryController.
-func (d *DiaryControllerImpl) GetAllDiaries(c *gin.Context) {
+// func (d *DiaryControllerImpl) GetAllDiaries(c *gin.Context) {
 
-	diaries, err := d.DiaryService.GetAllDiaries()
-	if err != nil {
-		logrus.WithError(err).Error("cannot get all diaries")
-		res := baseresponse.BaseResponse[string]{
-			Code:   500,
-			Status: "Internal Server Error",
-			Msg:    fmt.Sprintf("cannot get all diaries: %v", err.Error()),
-			Data:   "",
-		}
+// 	diaries, err := d.DiaryService.GetAllDiaries()
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot get all diaries")
+// 		res := baseresponse.BaseResponse[string]{
+// 			Code:   500,
+// 			Status: "Internal Server Error",
+// 			Msg:    fmt.Sprintf("cannot get all diaries: %v", err.Error()),
+// 			Data:   "",
+// 		}
 
-		c.JSON(500, res)
-		return
-	}
+// 		c.JSON(500, res)
+// 		return
+// 	}
 
-	res := baseresponse.BaseResponse[[]*dto.DiaryDTO]{
-		Code:   200,
-		Status: "OK",
-		Msg:    "diaries fetched successfully",
-		Data:   diaries,
-	}
+// 	res := baseresponse.BaseResponse[[]*dto.DiaryDTO]{
+// 		Code:   200,
+// 		Status: "OK",
+// 		Msg:    "diaries fetched successfully",
+// 		Data:   diaries,
+// 	}
 
-	c.JSON(200, res)
-}
+// 	c.JSON(200, res)
+// }
 
 // GetDiary implements DiaryController.
-func (d *DiaryControllerImpl) GetDiary(c *gin.Context) {
+// func (d *DiaryControllerImpl) GetDiary(c *gin.Context) {
 
-	diaryID := c.Param("id")
+// 	diaryID := c.Param("id")
 
-	id, err := strconv.Atoi(diaryID)
-	if err != nil {
-		logrus.WithError(err).Error("cannot convert id to int")
-		res := baseresponse.BaseResponse[string]{
-			Code:   400,
-			Status: "Bad Request",
-			Msg:    fmt.Sprintf("cannot convert id to int: %v", err.Error()),
-			Data:   "",
-		}
+// 	id, err := strconv.Atoi(diaryID)
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot convert id to int")
+// 		res := baseresponse.BaseResponse[string]{
+// 			Code:   400,
+// 			Status: "Bad Request",
+// 			Msg:    fmt.Sprintf("cannot convert id to int: %v", err.Error()),
+// 			Data:   "",
+// 		}
 
-		c.JSON(400, res)
-		return
-	}
+// 		c.JSON(400, res)
+// 		return
+// 	}
 
-	diary, err := d.DiaryService.GetDiary(id)
-	if err != nil {
-		logrus.WithError(err).Error("cannot get diary")
-		res := baseresponse.BaseResponse[string]{
-			Code:   500,
-			Status: "Internal Server Error",
-			Msg:    fmt.Sprintf("cannot get diary: %v", err.Error()),
-			Data:   "",
-		}
+// 	diary, err := d.DiaryService.GetDiary(id)
+// 	if err != nil {
+// 		logrus.WithError(err).Error("cannot get diary")
+// 		res := baseresponse.BaseResponse[string]{
+// 			Code:   500,
+// 			Status: "Internal Server Error",
+// 			Msg:    fmt.Sprintf("cannot get diary: %v", err.Error()),
+// 			Data:   "",
+// 		}
 
-		c.JSON(500, res)
-		return
-	}
+// 		c.JSON(500, res)
+// 		return
+// 	}
 
-	res := baseresponse.BaseResponse[*dto.DiaryDTO]{
-		Code:   200,
-		Status: "OK",
-		Msg:    "diary fetched successfully",
-		Data:   diary,
-	}
+// 	res := baseresponse.BaseResponse[*dto.DiaryDTO]{
+// 		Code:   200,
+// 		Status: "OK",
+// 		Msg:    "diary fetched successfully",
+// 		Data:   diary,
+// 	}
 
-	c.JSON(200, res)
-}
+// 	c.JSON(200, res)
+// }
 
 // RAGResponse implements DiaryController.
 func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
