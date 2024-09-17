@@ -1,0 +1,85 @@
+name: CI/CD Pipeline
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    test-and-build-api:
+        name: Test and Build API
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: Set up Go
+              uses: actions/setup-go@v2
+              with:
+                  go-version: '1.22.1'
+            
+            - name: Cache Go modules
+              uses: actions/cache@v2
+              with:
+                path: ~/go/pkg/mod
+                key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+                restore-keys: |
+                  ${{ runner.os }}-go-
+            
+            - name: Install dependencies
+              run: go mod download
+
+            - name: Run linters
+              uses: golangci/golangci-lint-action@v6.0.1
+              with:
+                args: --out-format colored-line-number
+
+            - name: Build Binary
+              run: GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
+
+            - name: Zip Binary
+              run: zip rag_diary.zip bootstrap
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v2
+              with:
+                name: rag_diary
+                path: ./rag_diary.zip
+    
+    deploy-api:
+        name: Deploy
+        runs-on: ubuntu-latest
+        needs: test-and-build-api
+        permissions:
+          id-token: write    # Permiso para generar el OIDC token
+          contents: read
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Download artifact
+            uses: actions/download-artifact@v2
+            with:
+              name: rag_diary
+              path: ./terraform
+        
+          - name: Configure AWS credentials using OIDC
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+              role-to-assume: arn:aws:iam::992382698192:role/RagDiaryTerraform
+              aws-region: sa-east-1
+
+          - name: Set up Terraform
+            uses: hashicorp/setup-terraform@v1
+        
+          - name: Initialize Terraform
+            working-directory: ./terraform
+            run: terraform init
+
+          - name: Plan Terraform
+            working-directory: ./terraform
+            run: terraform plan -out=tfplan
+
+          - name: Apply Terraform
+            working-directory: ./terraform
+            run: terraform apply -auto-approve tfplan
