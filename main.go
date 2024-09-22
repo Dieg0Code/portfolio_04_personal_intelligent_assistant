@@ -45,7 +45,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			StatusCode: http.StatusInternalServerError,
 			Body:       `{ "message": "Internal Server Error" }`,
 			Headers: map[string]string{
-				"Access-Control-Allow-Origin":  "*",
+				"Access-Control-Allow-Origin":  "https://dieg0code.site",
 				"Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE",
 				"Access-Control-Allow-Headers": "Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token",
 			},

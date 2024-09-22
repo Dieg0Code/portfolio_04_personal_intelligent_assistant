@@ -1,3 +1,4 @@
+# API Gateway Rest API
 resource "aws_api_gateway_rest_api" "rag_diary_gateway" {
   name        = "rag_diary_gateway"
   description = "API Gateway for Rag Diary"
@@ -64,10 +65,9 @@ resource "aws_api_gateway_method" "post_rag_response" {
 
 # Integration for POST /api/v1/diary endpoint
 resource "aws_api_gateway_integration" "post_diary_integration" {
-  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
-  resource_id = aws_api_gateway_resource.diary.id
-  http_method = aws_api_gateway_method.post_diary.http_method
-
+  rest_api_id             = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id             = aws_api_gateway_resource.diary.id
+  http_method             = aws_api_gateway_method.post_diary.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.rag_diary.invoke_arn
@@ -75,10 +75,9 @@ resource "aws_api_gateway_integration" "post_diary_integration" {
 
 # Integration for POST /api/v1/diary/semantic-search endpoint
 resource "aws_api_gateway_integration" "post_semantic_search_integration" {
-  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
-  resource_id = aws_api_gateway_resource.semantic_search.id
-  http_method = aws_api_gateway_method.post_semantic_search.http_method
-
+  rest_api_id             = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id             = aws_api_gateway_resource.semantic_search.id
+  http_method             = aws_api_gateway_method.post_semantic_search.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.rag_diary.invoke_arn
@@ -86,16 +85,15 @@ resource "aws_api_gateway_integration" "post_semantic_search_integration" {
 
 # Integration for POST /api/v1/diary/rag-response endpoint
 resource "aws_api_gateway_integration" "post_rag_response_integration" {
-  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
-  resource_id = aws_api_gateway_resource.rag_response.id
-  http_method = aws_api_gateway_method.post_rag_response.http_method
-
+  rest_api_id             = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id             = aws_api_gateway_resource.rag_response.id
+  http_method             = aws_api_gateway_method.post_rag_response.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.rag_diary.invoke_arn
 }
 
-# Update the existing POST method response for /api/v1/diary/rag-response
+# Method response for POST /api/v1/diary/rag-response
 resource "aws_api_gateway_method_response" "post_rag_response_200" {
   rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
   resource_id = aws_api_gateway_resource.rag_response.id
@@ -107,6 +105,7 @@ resource "aws_api_gateway_method_response" "post_rag_response_200" {
   }
 }
 
+# Integration response for POST /api/v1/diary/rag-response
 resource "aws_api_gateway_integration_response" "post_rag_response_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
   resource_id = aws_api_gateway_resource.rag_response.id
@@ -114,8 +113,12 @@ resource "aws_api_gateway_integration_response" "post_rag_response_integration_r
   status_code = aws_api_gateway_method_response.post_rag_response_200.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+    "method.response.header.Access-Control-Allow-Origin" = "'https://dieg0code.site'"
   }
+
+  depends_on = [
+    aws_api_gateway_integration.post_rag_response_integration
+  ]
 }
 
 # OPTIONS Method for CORS Preflight
@@ -133,7 +136,9 @@ resource "aws_api_gateway_integration" "options_rag_response_integration" {
   type        = "MOCK"
 
   request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
+    "application/json" = jsonencode({
+      statusCode = 200
+    })
   }
 }
 
@@ -142,6 +147,10 @@ resource "aws_api_gateway_method_response" "options_rag_response_200" {
   resource_id = aws_api_gateway_resource.rag_response.id
   http_method = aws_api_gateway_method.options_rag_response.http_method
   status_code = "200"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = true
@@ -158,8 +167,8 @@ resource "aws_api_gateway_integration_response" "options_rag_response_integratio
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS,POST,PUT'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS,POST,PUT,DELETE'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://dieg0code.site'"
   }
 }
 
@@ -177,7 +186,8 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
   depends_on = [
     aws_api_gateway_integration.post_diary_integration,
     aws_api_gateway_integration.post_semantic_search_integration,
-    aws_api_gateway_integration.post_rag_response_integration
+    aws_api_gateway_integration.post_rag_response_integration,
+    aws_api_gateway_integration.options_rag_response_integration
   ]
 
   rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
@@ -187,7 +197,8 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
     redeployment = sha1(jsonencode({
       post_diary_integration           = aws_api_gateway_integration.post_diary_integration.id,
       post_semantic_search_integration = aws_api_gateway_integration.post_semantic_search_integration.id,
-      post_rag_response_integration    = aws_api_gateway_integration.post_rag_response_integration.id
+      post_rag_response_integration    = aws_api_gateway_integration.post_rag_response_integration.id,
+      options_rag_response_integration = aws_api_gateway_integration.options_rag_response_integration.id
     }))
   }
 
@@ -201,13 +212,9 @@ resource "aws_api_gateway_stage" "api_gateway_stage" {
   deployment_id = aws_api_gateway_deployment.api_gateway_deployment.id
   rest_api_id   = aws_api_gateway_rest_api.rag_diary_gateway.id
   stage_name    = "dev"
-
-  depends_on = [
-    aws_api_gateway_deployment.api_gateway_deployment
-  ]
 }
 
-# Ivocation URL
+# Invocation URL
 output "api_gateway_url" {
   value = "https://${aws_api_gateway_rest_api.rag_diary_gateway.id}.execute-api.sa-east-1.amazonaws.com/${aws_api_gateway_stage.api_gateway_stage.stage_name}/api/v1/diary"
 }
