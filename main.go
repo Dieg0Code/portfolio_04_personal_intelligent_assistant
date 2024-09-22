@@ -47,17 +47,20 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 			Headers: map[string]string{
 				"Access-Control-Allow-Origin":  "*",
 				"Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE",
-				"Access-Control-Allow-Headers": "Content-Type, Authorization",
+				"Access-Control-Allow-Headers": "Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token",
 			},
 		}, err
 	}
 
 	logrus.Info("Request handled successfully")
-	response.Headers = map[string]string{
-		"Access-Control-Allow-Origin":  "*",
-		"Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE",
-		"Access-Control-Allow-Headers": "Content-Type, Authorization",
+	// Ensure CORS headers are set for all responses
+	if response.Headers == nil {
+		response.Headers = make(map[string]string)
 	}
+	response.Headers["Access-Control-Allow-Origin"] = "*"
+	response.Headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
+	response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token"
+
 	return response, nil
 }
 
