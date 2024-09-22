@@ -123,6 +123,61 @@ resource "aws_api_gateway_integration_response" "post_rag_response_integration_r
   }
 }
 
+# OPTIONS Method for CORS Preflight
+resource "aws_api_gateway_method" "options_rag_response" {
+  rest_api_id   = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id   = aws_api_gateway_resource.rag_response.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+
+  request_parameters = {
+    "method.request.header.Access-Control-Allow-Headers" = true
+    "method.request.header.Access-Control-Allow-Methods" = true
+    "method.request.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration" "options_rag_response_integration" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = aws_api_gateway_method.options_rag_response.http_method
+  type        = "MOCK"
+
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+resource "aws_api_gateway_method_response" "options_rag_response_method_response" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = aws_api_gateway_method.options_rag_response.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "options_rag_response_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = aws_api_gateway_method.options_rag_response.http_method
+  status_code = aws_api_gateway_method_response.options_rag_response_method_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'https://dieg0code.site'"
+  }
+
+  response_templates = {
+    "application/json" = ""
+  }
+}
+
 # Invoke permission for API Gateway to invoke Lambda
 resource "aws_lambda_permission" "api_gateway_invoke_lambda" {
   statement_id = "AllowAPIGatewayInvoke"
