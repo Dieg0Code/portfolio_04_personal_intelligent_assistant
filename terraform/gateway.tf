@@ -102,24 +102,6 @@ resource "aws_api_gateway_resource" "rag_response" {
   path_part = "rag-response"
 }
 
-# Method for POST /api/v1/diary/rag-response endpoint
-resource "aws_api_gateway_method" "post_rag_response" {
-  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
-  resource_id = aws_api_gateway_resource.rag_response.id
-  http_method = "POST"
-  authorization = "NONE"
-}
-
-# Integration for POST /api/v1/diary/rag-response endpoint
-resource "aws_api_gateway_integration" "post_rag_response_integration" {
-  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
-  resource_id = aws_api_gateway_resource.rag_response.id
-  http_method = aws_api_gateway_method.post_rag_response.http_method
-  integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.rag_diary.invoke_arn
-}
-
 # Method Response for POST /api/v1/diary/rag-response endpoint
 resource "aws_api_gateway_method_response" "post_rag_response_method_response" {
   rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
