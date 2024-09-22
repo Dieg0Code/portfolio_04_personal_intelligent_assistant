@@ -95,6 +95,59 @@ resource "aws_api_gateway_integration" "post_rag_response_integration" {
   uri = aws_lambda_function.rag_diary.invoke_arn
 }
 
+# Resource for API Gateway /api/v1/diary/rag-response endpoint
+resource "aws_api_gateway_resource" "rag_response" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  parent_id = aws_api_gateway_resource.diary.id
+  path_part = "rag-response"
+}
+
+# Method for POST /api/v1/diary/rag-response endpoint
+resource "aws_api_gateway_method" "post_rag_response" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = "POST"
+  authorization = "NONE"
+}
+
+# Integration for POST /api/v1/diary/rag-response endpoint
+resource "aws_api_gateway_integration" "post_rag_response_integration" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = aws_api_gateway_method.post_rag_response.http_method
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = aws_lambda_function.rag_diary.invoke_arn
+}
+
+# Method Response for POST /api/v1/diary/rag-response endpoint
+resource "aws_api_gateway_method_response" "post_rag_response_method_response" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = aws_api_gateway_method.post_rag_response.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Headers" = true
+  }
+}
+
+# Integration Response for POST /api/v1/diary/rag-response endpoint
+resource "aws_api_gateway_integration_response" "post_rag_response_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
+  resource_id = aws_api_gateway_resource.rag_response.id
+  http_method = aws_api_gateway_method.post_rag_response.http_method
+  status_code = aws_api_gateway_method_response.post_rag_response_method_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'https://dieg0code.site'"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST'"
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'"
+  }
+}
+
 # Invoke permission for API Gateway to invoke Lambda
 resource "aws_lambda_permission" "api_gateway_invoke_lambda" {
   statement_id = "AllowAPIGatewayInvoke"
