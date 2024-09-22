@@ -57,7 +57,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	if response.Headers == nil {
 		response.Headers = make(map[string]string)
 	}
-	response.Headers["Access-Control-Allow-Origin"] = "*"
+	response.Headers["Access-Control-Allow-Origin"] = "https://dieg0code.site"
 	response.Headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
 	response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token"
 
