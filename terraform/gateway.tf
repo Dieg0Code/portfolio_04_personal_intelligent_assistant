@@ -95,13 +95,6 @@ resource "aws_api_gateway_integration" "post_rag_response_integration" {
   uri = aws_lambda_function.rag_diary.invoke_arn
 }
 
-# Resource for API Gateway /api/v1/diary/rag-response endpoint
-resource "aws_api_gateway_resource" "rag_response" {
-  rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
-  parent_id = aws_api_gateway_resource.diary.id
-  path_part = "rag-response"
-}
-
 # Method Response for POST /api/v1/diary/rag-response endpoint
 resource "aws_api_gateway_method_response" "post_rag_response_method_response" {
   rest_api_id = aws_api_gateway_rest_api.rag_diary_gateway.id
