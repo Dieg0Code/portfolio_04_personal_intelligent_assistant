@@ -171,7 +171,7 @@ func (d *DiaryControllerImpl) CreateDiary(c *gin.Context) {
 // RAGResponse implements DiaryController.
 func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
 
-	query := dto.SemanticQueryDTO{}
+	query := dto.SemanticQueryWithHistoryDTO{}
 
 	err := c.ShouldBindJSON(&query)
 	if err != nil {
@@ -187,7 +187,7 @@ func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
 		return
 	}
 
-	response, err := d.DiaryService.RAGResponse(query.Query)
+	response, err := d.DiaryService.RAGResponse(query)
 	if err != nil {
 		logrus.WithError(err).Error("cannot get rag response")
 		res := baseresponse.BaseResponse[string]{

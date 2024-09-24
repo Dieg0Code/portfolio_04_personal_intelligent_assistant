@@ -8,5 +8,5 @@ type DiaryService interface {
 	// GetAllDiaries() ([]*dto.DiaryDTO, error)
 	// DeleteDiary(id int) error
 	SematicSearch(query string) (string, error)
-	RAGResponse(query string) (string, error)
+	RAGResponse(query dto.SemanticQueryWithHistoryDTO) (string, error)
 }

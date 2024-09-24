@@ -20,8 +20,8 @@ type DiaryServiceImpl struct {
 }
 
 // RAGResponse implements DiaryService.
-func (d *DiaryServiceImpl) RAGResponse(query string) (string, error) {
-	semanticCtx, err := d.SematicSearch(query)
+func (d *DiaryServiceImpl) RAGResponse(query dto.SemanticQueryWithHistoryDTO) (string, error) {
+	semanticCtx, err := d.SematicSearch(query.Query)
 	if err != nil {
 		logrus.WithError(err).Error("cannot perform semantic search")
 		return "", err
@@ -53,20 +53,33 @@ Limitaciones y directrices:
 Recuerda, tu objetivo principal es representar profesionalmente a Diego y su trabajo, mientras proporcionas una experiencia interactiva y útil para los visitantes de su portfolio web.`,
 		semanticCtx, time.Now().Format("02-01-2006"))
 
+	// Create the messages array and add the System prompt
+	messages := []openai.ChatCompletionMessage{
+		{
+			Role:    "system",
+			Content: prompt,
+		},
+	}
+
+	// Add chat history to messages
+	for _, msg := range query.History.Messages {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    msg.Role,
+			Content: msg.Content,
+		})
+	}
+
+	// Add the current user query
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    "user",
+		Content: query.Query,
+	})
+
 	res, err := d.openAi.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: openai.GPT4oMini,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    "system",
-					Content: prompt,
-				},
-				{
-					Role:    "user",
-					Content: query,
-				},
-			},
+			Model:    openai.GPT4oMini,
+			Messages: messages,
 		},
 	)
 
