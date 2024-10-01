@@ -42,6 +42,7 @@ Uso del contexto:
 - Contexto semántico: %s
 - Fecha actual: %s
 - Utiliza el contexto para enriquecer tus respuestas, pero no lo menciones explícitamente a menos que sea necesario.
+- Asegurate de mencionar los links y enlaces relevantes de Diego cuando sea apropiado.
 - Si una pregunta no requiere contexto (como saludos simples), responde de manera directa y natural.
 
 Limitaciones y directrices:
