@@ -14,3 +14,8 @@ resource "aws_iam_role" "rag_diary_lambda_role" {
     ]
   })
 }
+
+resource "aws_iam_role_policy_attachment" "rag_diary_lambda_role_policy" {
+  role       = aws_iam_role.rag_diary_lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
