@@ -12,6 +12,22 @@ type DiaryRepositoryImpl struct {
 	supabase *supabase.Client
 }
 
+// insertUserMessage implements DiaryRepository.
+func (d *DiaryRepositoryImpl) InsertUserMessage(UserMessage *model.UserMessage) error {
+	_, count, err := d.supabase.From("user_message").Insert(UserMessage, false, "", "representation", "exact").Execute()
+	if err != nil {
+		logrus.WithError(err).Error("cannot insert user message")
+		return err
+	}
+
+	if count == 0 {
+		logrus.Warn("user message not inserted")
+		return errors.New("user message not inserted")
+	}
+
+	return nil
+}
+
 // SemanticSearch implements DiaryRepository.
 func (d *DiaryRepositoryImpl) SemanticSearch(queryEmbedding []float32, similarityThreshold float32, matchCount int) (string, error) {
 	params := map[string]interface{}{

@@ -171,6 +171,8 @@ func (d *DiaryControllerImpl) CreateDiary(c *gin.Context) {
 // RAGResponse implements DiaryController.
 func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
 
+	clientIp := c.ClientIP()
+
 	query := dto.SemanticQueryWithHistoryDTO{}
 
 	err := c.ShouldBindJSON(&query)
@@ -185,6 +187,11 @@ func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
 
 		c.JSON(400, res)
 		return
+	}
+
+	err = d.DiaryService.SaveUserMessage(query.Query, clientIp)
+	if err != nil {
+		logrus.WithError(err).Error("error saving user message")
 	}
 
 	response, err := d.DiaryService.RAGResponse(query)

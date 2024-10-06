@@ -27,7 +27,8 @@ func init() {
 	}
 	repo := data.NewDiaryRepositoryImpl(dbClient)
 	openai := provider.NewOperAiClient()
-	service := service.NewDiaryServiceImpl(openai, repo)
+	ipInfo := provider.NewIpInfoClient()
+	service := service.NewDiaryServiceImpl(openai, ipInfo, repo)
 	controller := controller.NewDiaryControllerImpl(service)
 
 	r = router.NewRouter(controller)

@@ -4,19 +4,64 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/dieg0code/rag-diary/diary/data"
 	"github.com/dieg0code/rag-diary/diary/dto"
 	"github.com/dieg0code/rag-diary/diary/model"
 	"github.com/google/uuid"
+	"github.com/ipinfo/go/v2/ipinfo"
 	openai "github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 )
 
 type DiaryServiceImpl struct {
 	openAi    *openai.Client
+	ipInfo    *ipinfo.Client
 	diaryRepo data.DiaryRepository
+}
+
+// SaveUserMessage implements DiaryService.
+func (d *DiaryServiceImpl) SaveUserMessage(userMessage string, ip string) error {
+
+	userInfo, err := d.ipInfo.GetIPInfo(net.ParseIP(ip))
+	if err != nil {
+		logrus.WithError(err).Error("Error getting ip info")
+	}
+
+	location := fmt.Sprintf("%s,%s,%s", userInfo.City, userInfo.Region, userInfo.Country)
+
+	ctx := context.Background()
+
+	targetReq := openai.EmbeddingRequest{
+		Input: []string{userMessage},
+		Model: openai.LargeEmbedding3,
+	}
+
+	response, err := d.openAi.CreateEmbeddings(ctx, targetReq)
+	if err != nil {
+		logrus.WithError(err).Error("cannot create embeddings")
+		return err
+	}
+
+	embeddings := response.Data[0].Embedding
+
+	userMessageModel := &model.UserMessage{
+		ID:             uuid.New(),
+		MessageContent: userMessage,
+		SenderLocation: location,
+		Embedding:      embeddings,
+	}
+
+	err = d.diaryRepo.InsertUserMessage(userMessageModel)
+	if err != nil {
+		logrus.WithError(err).Error("cannot insert diary entry")
+		return err
+	}
+
+	return nil
+
 }
 
 // RAGResponse implements DiaryService.
@@ -169,46 +214,10 @@ func (d *DiaryServiceImpl) CreateDiary(diary dto.CreateDiaryDTO) error {
 	return nil
 }
 
-// DeleteDiary implements DiaryService.
-// func (d *DiaryServiceImpl) DeleteDiary(id int) error {
-// 	err := d.diaryRepo.DeleteDiary(id)
-// 	if err != nil {
-// 		logrus.WithError(err).Error("cannot delete diary")
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// GetAllDiaries implements DiaryService.
-// func (d *DiaryServiceImpl) GetAllDiaries() ([]*dto.DiaryDTO, error) {
-// 	diaries, err := d.diaryRepo.GetAllDiaries()
-// 	if err != nil {
-// 		logrus.WithError(err).Error("cannot get all diaries")
-// 		return nil, err
-// 	}
-
-// 	var diariesDTO []*dto.DiaryDTO
-// 	for _, diary := range diaries {
-// 		diariesDTO = append(diariesDTO, &dto.DiaryDTO{
-// 			ID:        diary.ID,
-// 			Title:     diary.Title,
-// 			Content:   diary.Content,
-// 			CreatedAt: diary.CreatedAt,
-// 		})
-
-// 	}
-
-// 	return diariesDTO, nil
-// }
-
-// GetDiary implements DiaryService.
-// func (d *DiaryServiceImpl) GetDiary(id int) (*dto.DiaryDTO, error) {
-// 	panic("unimplemented")
-// }
-
-func NewDiaryServiceImpl(openAi *openai.Client, diaryRepo data.DiaryRepository) DiaryService {
+func NewDiaryServiceImpl(openAi *openai.Client, ipInfo *ipinfo.Client, diaryRepo data.DiaryRepository) DiaryService {
 	return &DiaryServiceImpl{
 		openAi:    openAi,
+		ipInfo:    ipInfo,
 		diaryRepo: diaryRepo,
 	}
 }

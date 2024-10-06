@@ -4,6 +4,7 @@ import "github.com/dieg0code/rag-diary/diary/model"
 
 type DiaryRepository interface {
 	InsertDiary(diary *model.Diary) error
+	InsertUserMessage(UserMessage *model.UserMessage) error
 	// GetDiary(id int) (*model.Diary, error)
 	// GetAllDiaries() ([]*model.Diary, error)
 	// DeleteDiary(id int) error
