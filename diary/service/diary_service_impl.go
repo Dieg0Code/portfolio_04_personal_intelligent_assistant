@@ -51,6 +51,7 @@ func (d *DiaryServiceImpl) SaveUserMessage(userMessage string, ip string) error 
 		ID:             uuid.New(),
 		MessageContent: userMessage,
 		SenderLocation: location,
+		CreatedAt:      time.Now().Format("02-01-2006"),
 		Embedding:      embeddings,
 	}
 
