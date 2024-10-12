@@ -171,7 +171,10 @@ func (d *DiaryControllerImpl) CreateDiary(c *gin.Context) {
 // RAGResponse implements DiaryController.
 func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
 
-	clientIp := c.ClientIP()
+	clientIp := c.Request.Header.Get("X-Forwarded-For")
+	if clientIp == "" {
+		clientIp = c.ClientIP()
+	}
 
 	query := dto.SemanticQueryWithHistoryDTO{}
 
