@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"strings"
 
 	baseresponse "github.com/dieg0code/rag-diary/base_response"
 	"github.com/dieg0code/rag-diary/diary/dto"
@@ -174,6 +175,8 @@ func (d *DiaryControllerImpl) RAGResponse(c *gin.Context) {
 	clientIp := c.Request.Header.Get("X-Forwarded-For")
 	if clientIp == "" {
 		clientIp = c.ClientIP()
+	} else {
+		clientIp = strings.Split(clientIp, ",")[0]
 	}
 
 	query := dto.SemanticQueryWithHistoryDTO{}

@@ -114,7 +114,6 @@ resource "aws_api_gateway_integration_response" "post_rag_response_integration_r
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = "'https://dieg0code.site'"
-    "method.response.header.X-Forwarded-For"             = "integration.response.header.X-Forwarded-For"
   }
 
   depends_on = [
