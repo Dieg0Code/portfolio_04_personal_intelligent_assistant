@@ -32,27 +32,11 @@ func (d *DiaryServiceImpl) SaveUserMessage(userMessage string, ip string) error 
 
 	location := fmt.Sprintf("%s,%s,%s", userInfo.City, userInfo.Region, userInfo.Country)
 
-	ctx := context.Background()
-
-	targetReq := openai.EmbeddingRequest{
-		Input: []string{userMessage},
-		Model: openai.LargeEmbedding3,
-	}
-
-	response, err := d.openAi.CreateEmbeddings(ctx, targetReq)
-	if err != nil {
-		logrus.WithError(err).Error("cannot create embeddings")
-		return err
-	}
-
-	embeddings := response.Data[0].Embedding
-
 	userMessageModel := &model.UserMessage{
 		ID:             uuid.New(),
 		MessageContent: userMessage,
 		SenderLocation: location,
 		CreatedAt:      time.Now().Format("02-01-2006"),
-		Embedding:      embeddings,
 	}
 
 	err = d.diaryRepo.InsertUserMessage(userMessageModel)

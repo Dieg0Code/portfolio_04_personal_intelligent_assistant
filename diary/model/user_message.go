@@ -7,5 +7,4 @@ type UserMessage struct {
 	MessageContent string    `json:"message_content"`
 	SenderLocation string    `json:"sender_location"`
 	CreatedAt      string    `json:"created_at"`
-	Embedding      []float32 `json:"embedding"`
 }
