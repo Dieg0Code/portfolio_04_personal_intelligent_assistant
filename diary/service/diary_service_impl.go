@@ -148,7 +148,7 @@ Recuerda, tu objetivo es posicionar a Diego como la solución ideal para las nec
 	res, err := d.openAi.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:    openai.GPT4,
+			Model:    openai.GPT4oMini,
 			Messages: messages,
 		},
 	)
