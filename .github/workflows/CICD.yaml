@@ -1,97 +1,97 @@
 name: CI/CD Pipeline
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    test-and-build-api:
-        name: Test and Build API
-        runs-on: ubuntu-latest
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-            
-            - name: Set up Go
-              uses: actions/setup-go@v2
-              with:
-                  go-version: '1.22.1'
-            
-            - name: Cache Go modules
-              uses: actions/cache@v2
-              with:
-                path: ~/go/pkg/mod
-                key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-                restore-keys: |
-                  ${{ runner.os }}-go-
-            
-            - name: Install dependencies
-              run: go mod download
+  test-and-build-api:
+    name: Test and Build API
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Run linters
-              uses: golangci/golangci-lint-action@v6.0.1
-              with:
-                args: --out-format colored-line-number
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22.1"
 
-            - name: Build Binary
-              run: GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
-            - name: Zip Binary
-              run: zip rag_diary.zip bootstrap
+      - name: Install dependencies
+        run: go mod download
 
-            - name: Upload artifact
-              uses: actions/upload-artifact@v4
-              with:
-                name: rag_diary
-                path: ./rag_diary.zip
-    
-    deploy-api:
-        name: Deploy
-        runs-on: ubuntu-latest
-        needs: test-and-build-api
-        permissions:
-          id-token: write
-          contents: read
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
+      - name: Run linters
+        uses: golangci/golangci-lint-action@v6.0.1
+        with:
+          args: --out-format colored-line-number
 
-          - name: Download artifact
-            uses: actions/download-artifact@v4
-            with:
-              name: rag_diary
-              path: ./terraform
-        
-          - name: Configure AWS credentials using OIDC # required for assuming roles
-            uses: aws-actions/configure-aws-credentials@v2
-            with:
-              role-to-assume: arn:aws:iam::992382698192:role/RagDiaryTerraform
-              aws-region: sa-east-1
-              audience: sts.amazonaws.com
-          
-          - name: Set up Terraform variables
-            run: |
-              echo "TF_VAR_supabase_url=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
-              echo "TF_VAR_supabase_key=${{ secrets.SUPABASE_KEY }}" >> $GITHUB_ENV
-              echo "TF_VAR_openai_api_key=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-              echo "TF_VAR_ip_info_api_key=${{ secrets.IP_INFO_API_KEY }}" >> $GITHUB_ENV
+      - name: Build Binary
+        run: GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
 
-          - name: Set up Terraform
-            uses: hashicorp/setup-terraform@v1
-        
-          - name: Initialize Terraform
-            working-directory: ./terraform
-            run: terraform init
+      - name: Zip Binary
+        run: zip rag_diary.zip bootstrap
 
-          - name: Plan Terraform
-            working-directory: ./terraform
-            run: terraform plan -out=tfplan
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rag_diary
+          path: ./rag_diary.zip
 
-          - name: Apply Terraform
-            working-directory: ./terraform
-            run: terraform apply -auto-approve tfplan
+  deploy-api:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test-and-build-api
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rag_diary
+          path: ./terraform
+
+      - name: Configure AWS credentials using OIDC # required for assuming roles
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::992382698192:role/RagDiaryTerraform
+          aws-region: sa-east-1
+          audience: sts.amazonaws.com
+
+      - name: Set up Terraform variables
+        run: |
+          echo "TF_VAR_supabase_url=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "TF_VAR_supabase_key=${{ secrets.SUPABASE_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_openai_api_key=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_ip_info_api_key=${{ secrets.IP_INFO_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Initialize Terraform
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Plan Terraform
+        working-directory: ./terraform
+        run: terraform plan -out=tfplan
+
+      - name: Apply Terraform
+        working-directory: ./terraform
+        run: terraform apply -auto-approve tfplan
