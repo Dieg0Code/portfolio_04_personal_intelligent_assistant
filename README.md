@@ -14,23 +14,26 @@ SUPABASE_KEY=yoursupabasekey
 OPENAI_API_KEY=youropenaikey
 ```
 
-*In my case, I'm using Github secrets to store these values.*
+_In my case, I'm using Github secrets to store these values._
 
 ### Terraform
 
 Also need to create an s3 bucket and a DynamoDB table for terraform state.
 
 S3 bucket:
+
 ```bash
 aws s3api create-bucket --bucket terraform-state-rag-diary --region sa-east-1 --create-bucket-configuration LocationConstraint=sa-east-1
 ```
 
 Enable versioning for the bucket (optional):
+
 ```bash
 aws s3api put-bucket-versioning --bucket terraform-state-rag-diary --versioning-configuration Status=Enabled
 ```
 
 DynamoDB table:
+
 ```bash
 aws dynamodb create-table \
     --table-name terraform_locks_diary \
@@ -108,5 +111,7 @@ create index on public.diary
 using ivfflat (embedding vector_cosine_ops)
 with (lists = 100);
 ```
+
+asd
 
 ---
