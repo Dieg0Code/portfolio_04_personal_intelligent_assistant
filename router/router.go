@@ -29,7 +29,7 @@ func (r *Router) InitRoutes() *Router {
 
 	// Configurar CORS
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://dieg0code.site"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},
